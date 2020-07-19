@@ -229,7 +229,7 @@ def compare_rate_web_scraping():
                     #print(EMAIL_PASSWORD)
                     subject = "Today's Best US Dollars to Indian Rupees (USD to INR) Exchange Rate: "+today
                     to = EMAIL_ADDRESS
-                    bcc = ['chitpoon22@gmail.com']
+                    bcc = EMAIL_ADDRESS
                     content  = """"Today's Best US Dollars to Indian Rupees (USD to INR) Exchange Rate: {today}""".format(today=today)
                     file_name = ''
                     #attachig the file to email
