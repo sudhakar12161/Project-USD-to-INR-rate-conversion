@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup as bs
 import requests
 from selenium import webdriver
 import pandas as pd
-from sqlalchemy import create_engine,Table,MetaData,Column,PrimaryKeyConstraint,String,Integer,Float,DateTime
+#from sqlalchemy import create_engine,Table,MetaData,Column,PrimaryKeyConstraint,String,Integer,Float,DateTime
 from datetime import datetime,timedelta
 import logging
 from os import path
