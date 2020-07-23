@@ -4,9 +4,9 @@
 
 - [Introduction](#introduction)
 - [Prerequisites](#prerequisites)
-- [Code Setup](#codesetup)
-- [ETL Process](#etlprocess)
-- [Data Result](#dataresult)
+- [Code Setup](#code-setup)
+- [ETL Process](#etl-process)
+- [Data Result](#data-result)
 - [Conclusion](#conclusion)
 
 ## Introduction
