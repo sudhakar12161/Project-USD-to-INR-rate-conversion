@@ -15,7 +15,7 @@
 
 ## Prerequisites
 
-To run the application, you need to install following packages
+To run the application,install following packages
 - Python (3.6 or higher)
 - Apache Airflow (1.10.10)
 - PostgreSQL (12.2)
