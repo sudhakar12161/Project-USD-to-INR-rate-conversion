@@ -14,6 +14,17 @@
 - The code is written in **Python**, scheduled in **Apache Airflow** and stored data in **Postgres** database.
 
 ## Prerequisites
+Prerequisites for [USD-TO-INR] 
+
+Git clone : https://github.com/sudhakar12161/USD-to-INR.git
+Python : Python versions: 3.6, 3.7, 3.8 
+Apache Airflow 
+Postgres : Postgres DB: 9.6, 10
+
+## License
+
+Copyrights © 2020 FrontAd Media Inc.
+Apache License, Version 2.0.
 
 ## Code Setup
 
