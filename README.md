@@ -26,18 +26,6 @@ Import the following libraries
     from  bs4  import  BeautifulSoup  as  bs
     import  requests
     from  selenium  import  webdriver
-    import  pandas  as  pd
-    from  datetime  import  datetime,timedelta
-    import  logging
-    from  os  import  path
-    import  os
-    import  email_sender
-    from  airflow  import  DAG
-    from  airflow.operators.bash_operator  import  BashOperator
-    from  airflow.operators.python_operator  import  PythonOperator
-    from  airflow.operators.dummy_operator  import  DummyOperator
-    from  airflow.models  import  Variable
-    from  airflow.hooks.postgres_hook  import  PostgresHook
 
 ## ETL Process
 
