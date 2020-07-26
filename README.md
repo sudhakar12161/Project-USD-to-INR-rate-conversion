@@ -27,7 +27,7 @@ To run the application, you need to install following packages:
 
 ## Code Setup
 Follow the below steps to setup **USD-to-INR rate change notification** application
-- <a src ='https://medium.com/@taufiq_ibrahim/apache-airflow-installation-on-ubuntu-ddc087482c14'> Steps <a/>to install Python, Pip, Postgres and Airflow packages.
+- <a href ='https://medium.com/@taufiq_ibrahim/apache-airflow-installation-on-ubuntu-ddc087482c14'> Steps </a>to install Python, Pip, Postgres and Airflow packages.
 - After completeing the previous step, install the following packages through pip.
   ```
   requests #to make web page requests
