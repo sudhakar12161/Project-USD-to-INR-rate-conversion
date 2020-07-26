@@ -75,16 +75,41 @@ Follow the below steps to setup **USD-to-INR rate change notification** applicat
   airflow_usd_to_inr_bcc_list : ['email 1', 'email 2']
   airflow_web_addr : https://www.compareremit.com/todays-best-dollar-to-rupee-exchange-rate/
   ```
-  After creating variables, you will see the following screen in Airflow web UI.
+- After creating variables, you will see the following screen in Airflow web UI.
   
-  <img src='https://github.com/sudhakar12161/USD-to-INR/blob/master/pictures/airflow_variables.png' alt='Airflow Variable Web UI' />
+  <img src='https://github.com/sudhakar12161/Project-USD-to-INR-rate-conversion/blob/master/pictures/airflow_variables.png' alt='Airflow Variable Web UI' />
+
+- Connect to Postgres database and run the following statements.
+  ```
+  sudo -u postgres psql #to connect to postgres database
   
-- Copy all files from [dag](https://github.com/sudhakar12161/USD-to-INR/tree/master/dag) folder into your dag folder located in Airflow Home directory.
+  CREATE USER usdtoinr PASSWORD 'usdtoinr';
+  CREATE DATABASE rate_conversion;
+  GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO usdtoinr;
+
+  #disconnect from the postgres database and connect with usdtoinr user.
+
+  psql -d rate_conversion -U usdtoinr 
+
+  CREATE TABLE compare_rate_usd_to_inr (
+	  Date_id TIMESTAMP NOT NULL, 
+	  Agent_Name VARCHAR(50) NOT NULL, 
+	  New_User_Rate FLOAT, 
+	  Regular_Rate FLOAT, 
+	  Transfer_Fee_Rate FLOAT, 
+	  CONSTRAINT Compare_Rate_USD_to_INR_PK PRIMARY KEY (Date_Id, Agent_Name)
+  );
+  ```
+- Next Create the **Postgres** connection in Airflow as shown below.
+
+  <img src='https://github.com/sudhakar12161/Project-USD-to-INR-rate-conversion/blob/master/pictures/airflow_postgres_conn.png' alt='Airflow Variable Web UI' />
+
+- Copy all files from [dag](https://github.com/sudhakar12161/Project-USD-to-INR-rate-conversion/tree/master/dag) folder into your dag folder located in Airflow Home directory.
 
 - Restart Airflow services if you don't see new dags in Airflow web UI.
 
 - After above steps you should see the **usdtoinr_dag** in your dag list.
-<img src='https://github.com/sudhakar12161/USD-to-INR/blob/master/pictures/airflow_main_screen.png' alt='Airflow main web UI' />
+<img src='https://github.com/sudhakar12161/Project-USD-to-INR-rate-conversion/blob/master/pictures/airflow_main_screen.png' alt='Airflow main web UI' />
 
 
 
