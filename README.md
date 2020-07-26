@@ -29,18 +29,15 @@ To run the application, you need to install following packages:
 Follow the below steps to setup **USD-to-INR rate change notification** application.
 - <a href ='https://medium.com/@taufiq_ibrahim/apache-airflow-installation-on-ubuntu-ddc087482c14' > Steps</a> to install Python, Pip, Postgres and Airflow packages.
 - After completeing the previous step, install the following packages through pip.
-
   ```
   requests #to make web page requests
   bs4 #BeautifulSoup
   selenium # to read dynamic webpage
   pandas
   ```
-  
-- Make the [Less Secure Apps](https://support.google.com/accounts/answer/6010255) and [Enable IMAP](https://support.google.com/mail/answer/7126229?hl=en) chnages to your gamil account to enable SMTP feature and to send emails through programatically and note down the 16 characters passwords.
+- Make the [Less Secure Apps](https://support.google.com/accounts/answer/6010255) and [Enable IMAP](https://support.google.com/mail/answer/7126229?hl=en) changes to your gmail account to enable SMTP feature and to send emails through programatically and note down the 16 characters passwords.
 
 - Update the following code in **airflow.cfg** file located in Airflow Home directory.
-
   ```
   executor = LocalExecutor
   sql_alchemy_conn = postgresql+psycopg2://airflow:a1rflow@localhost:5432/airflow
@@ -62,7 +59,6 @@ Follow the below steps to setup **USD-to-INR rate change notification** applicat
 
   broker_url = sqla+mysql://airflow:airflow@localhost:3306/airflow
   result_backend = db+mysql://airflow:airflow@localhost:3306/airflow
-
   ```
 - Run the following commands to start the Airflow services.
   ```
@@ -71,7 +67,6 @@ Follow the below steps to setup **USD-to-INR rate change notification** applicat
   airflow scheduler
   ```
 - Create the following variables in airflow web UI.
-
   ```
   Key : Value
   airflow_chromedriver_path : /usr/bin/chromedriver
@@ -81,6 +76,7 @@ Follow the below steps to setup **USD-to-INR rate change notification** applicat
   airflow_web_addr : https://www.compareremit.com/todays-best-dollar-to-rupee-exchange-rate/
   ```
   After creating variables, you will see the following screen in Airflow web UI.
+  
   <img src='https://github.com/sudhakar12161/USD-to-INR/blob/master/pictures/airflow_variables.png' alt='Airflow Variable Web UI' />
   
 - Copy all files from [dag](https://github.com/sudhakar12161/USD-to-INR/tree/master/dag) folder into your dag folder located in Airflow Home directory.
