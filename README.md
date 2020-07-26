@@ -114,6 +114,34 @@ Follow the below steps to setup **USD-to-INR rate change notification** applicat
 
 
 ## ETL Process
+The ETL process is divided into tasks in a dag in Airflow. There are 4 PythonOperator tasks and 2 DummyOperators tasks as shown below.
+<img src='https://github.com/sudhakar12161/Project-USD-to-INR-rate-conversion/blob/master/pictures/airflow_dag.png' alt='Airflow dag screen' />
+#### ETL Steps:
+- DummyOperator: The Start_Task and End_Task are just to show the process begin and end positions and there is no logic in these tasks.
+
+- PythonOperator:
+  - Read_Webpage:
+    - This task reads a dynamic web-page using **Selenium** and **Chrome Driver** libraries and returns a HTML page. 
+    - This HTML stored in a **Airflow Variable** to pass to the next section.
+  - Extract_USD_to_INR_Data:
+    - This task reads web-page using **BeautifulSoup** library from a variable.
+    - Extracts the elements/data from a web-page that we are interested in.
+    - Adding all the extracted elements to a list and store that list in a variable to pass into the next task.
+  - Load_USD_to_INR_Data:
+    - In this task we will read the list from a variable returned by the previous task and convert it into a **Pandas** DataFrame.
+    - We will connect to the database and get the prior agents rate information and store it in a DataFrame.
+    - After that, will make some transformations and compare the both DataFrames.
+    - Load the data into **Postgres** database if there a difference in the rate.
+    - Convert the DataFrame which has modified rate information into HTML format and store the in a variable to pass in to the next task. 
+  - Send_Email:
+    - This task uses **email_sender.py** user defined module which contains **smtplib** and **email** libraries.
+    - This task triggeres but only sends email notification when ever there is a change in the rate.
+
+#### ETL Recovery and Notification:
+- As we defined in the **DAG** default arguments in the code, the process will re-run for one time if the process failed for somereason. 
+- If it failed second time then it will send email notification (need to setup **SMTP** section in airflow.cfg file) and fail the task.
+- Sample email notification when the task failes.
+- i will upload the image soon.
 
 ## Data Result
 
