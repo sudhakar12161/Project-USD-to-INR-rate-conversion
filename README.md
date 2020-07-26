@@ -115,6 +115,7 @@ Follow the below steps to setup **USD-to-INR rate change notification** applicat
 
 ## ETL Process
 The ETL process is divided into tasks in a dag in Airflow. There are 4 PythonOperator tasks and 2 DummyOperators tasks as shown below.
+
 <img src='https://github.com/sudhakar12161/Project-USD-to-INR-rate-conversion/blob/master/pictures/airflow_dag.png' alt='Airflow dag screen' />
 #### ETL Steps:
 - DummyOperator: The Start_Task and End_Task are just to show the process begin and end positions and there is no logic in these tasks.
@@ -131,7 +132,7 @@ The ETL process is divided into tasks in a dag in Airflow. There are 4 PythonOpe
     - In this task we will read the list from a variable returned by the previous task and convert it into a **Pandas** DataFrame.
     - We will connect to the database and get the prior agents rate information and store it in a DataFrame.
     - After that, will make some transformations and compare the both DataFrames.
-    - Load the data into **Postgres** database if there a difference in the rate.
+    - Load the data into **Postgres** database using **Postgres hook** if there a difference in the rate.
     - Convert the DataFrame which has modified rate information into HTML format and store the in a variable to pass in to the next task. 
   - Send_Email:
     - This task uses **email_sender.py** user defined module which contains **smtplib** and **email** libraries.
