@@ -37,7 +37,7 @@ Follow the below steps to setup **USD-to-INR rate change notification** applicat
   pandas
   ```
   
-- Make the [Less Secure apps]('https://support.google.com/accounts/answer/6010255') and [Enable IMAP]('https://support.google.com/mail/answer/7126229?hl=en') chnages to your gamil account to enable SMTP feature and to send emails through programatically and note down the 16 characters passwords.
+- Make the [Less Secure Apps](https://support.google.com/accounts/answer/6010255) and [Enable IMAP](https://support.google.com/mail/answer/7126229?hl=en) chnages to your gamil account to enable SMTP feature and to send emails through programatically and note down the 16 characters passwords.
 
 - Update the following code in **airflow.cfg** file located in Airflow Home directory.
 
@@ -83,7 +83,7 @@ Follow the below steps to setup **USD-to-INR rate change notification** applicat
   After creating variables, you will see the following screen in Airflow web UI.
   <img src='https://github.com/sudhakar12161/USD-to-INR/blob/master/pictures/airflow_variables.png' alt='Airflow Variable Web UI' />
   
-- Copy all files from [dag]('https://github.com/sudhakar12161/USD-to-INR/tree/master/dag') folder into your dag folder located in Airflow Home directory.
+- Copy all files from [dag](https://github.com/sudhakar12161/USD-to-INR/tree/master/dag) folder into your dag folder located in Airflow Home directory.
 
 - Restart Airflow services if you don't see new dags in Airflow web UI.
 
