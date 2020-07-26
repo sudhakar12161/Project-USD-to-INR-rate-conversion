@@ -142,7 +142,7 @@ The ETL process is divided into tasks in a dag in Airflow. There are 4 PythonOpe
 
 #### ETL Recovery and Notification:
 - As we defined in the **DAG** default arguments in the code, the process will re-run for one time if the process failed for unknown reason. 
-- If it failed second time then it will send email notification (need to setup **SMTP** section in airflow.cfg file) and fail the task.
+- If it fails second time, it will send email notification (need to setup **SMTP** section in airflow.cfg file) and fail the task.
 - Below is a sample email notification when the task fails.
 
 
