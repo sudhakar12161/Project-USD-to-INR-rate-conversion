@@ -2,14 +2,12 @@ from bs4 import BeautifulSoup as bs
 import requests
 from selenium import webdriver
 import pandas as pd
-#from sqlalchemy import create_engine,Table,MetaData,Column,PrimaryKeyConstraint,String,Integer,Float,DateTime
-from datetime import datetime,timedelta
+from datetime import datetime, timedelta
 import logging
 from os import path
 import os
 import email_sender
 from airflow import DAG
-from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.models import Variable
@@ -41,8 +39,9 @@ def read_webpage(**kwargs):
         logging.info('Request sent to web page {path}'.format(path=Variable.get('airflow_web_addr')))
         #assigning the HTML code to a variable
         src = driver.page_source
-        #print('Web page read')
-        Variable.set('usdtoinr_src',value=src)
+        logging.info('Reading webpage completed.')
+        usdtoinr = {'src': src}
+        Variable.set('usdtoinr',value=usdtoinr)
         logging.info('Loaded web page source into a variable called usdtoinr_src')
     except BaseException  as e:
         logging.error('Web driver issue, {0}'.format(e))
@@ -50,7 +49,8 @@ def read_webpage(**kwargs):
  
 def extract_usdtoinr_data(**kwargs):
     try:
-        src = Variable.get('usdtoinr_src')
+        src_dict = eval(Variable.get('usdtoinr'))
+        src = src_dict['src']
         if src is not None:
             soup = bs(src,'lxml')
             logging.info('Converted the response into HTML format')
@@ -126,7 +126,8 @@ def extract_usdtoinr_data(**kwargs):
             #appending the record to output list
             output.append(row_output)
         logging.info('Process done and returning output list')
-        Variable.set('usdtoinr_list_data',output)
+        src_dict['list_data'] = output
+        Variable.set('usdtoinr',value = src_dict)
            
     except BaseException  as e:
         logging.error('Issue with the returned webpage by Chrome driver: {0}'.format(e))
@@ -135,7 +136,9 @@ def extract_usdtoinr_data(**kwargs):
 
 def load_usdtoinr_data(**kwargs):
     try:
-        output = eval(Variable.get('usdtoinr_list_data'))
+        src_output = eval(Variable.get('usdtoinr'))
+        output = src_output['list_data']
+        logging.info(output)
         logging.info('Below is the output from Extract Data task')
         if len(output)>=1 and type(output) is list:
             for row in output:
@@ -158,9 +161,7 @@ def load_usdtoinr_data(**kwargs):
             raw_agent_data=raw_agent_data.drop(['New_User','Regular_User','Transfer_Fee'],axis=1).sort_values(by='Agent_Name').reset_index(drop=True)
             logging.info('Dropped desc fileds')
             #the below line is for testing purpose
-            #raw_agent_data.loc[raw_agent_data['Agent_Name']=='Xoom','New_User_Rate']=75.2
-            #Below line for testing
-            #raw_agent_data.loc[raw_agent_data['Agent_Name']=='Xoom','New_User_Rate']=75.2
+            #raw_agent_data.loc[raw_agent_data['Agent_Name']=='Xoom','New_User_Rate']=74.40
             #imp_agent_names is preferred agents
             imp_agent_names =['RIA Money Transfer','Remitly','Western Union','Xoom']
             #creating not matching recrods with old data
@@ -198,16 +199,22 @@ def load_usdtoinr_data(**kwargs):
             today_agent_data = raw_agent_data.loc[:,['Agent_Name','New_User_Rate']]
             today_agent_data = today_agent_data.query('Agent_Name in @imp_agent_names')
             today_agent_data = today_agent_data.sort_values(by='New_User_Rate', ascending=False).reset_index(drop=True)
-            Variable.set('usdtoinr_today_agent_data',today_agent_data.to_html(index=False))
+            #Variable.set('usdtoinr_today_agent_data',today_agent_data.to_html(index=False))
+            src_output['today_agent_data'] = today_agent_data.to_html(index=False)
             #logging.info(today_agent_data)
             #return not_matching_records,row_matching_ind
-            Variable.set('usdtoinr_match_ind',row_matching_ind)
-            Variable.set('usdtoinr_non_match_records',not_matching_records.to_html(index=False))
-            Variable.set('usdtoinr_non_match_record_cnt',not_matching_records_len)
+            #Variable.set('usdtoinr_match_ind',row_matching_ind)
+            #Variable.set('usdtoinr_non_match_records',not_matching_records.to_html(index=False))
+            #Variable.set('usdtoinr_non_match_record_cnt',not_matching_records_len)
+            src_output['match_ind'] = row_matching_ind
+            src_output['non_match_records'] = not_matching_records.to_html(index=False)
+            src_output['non_match_record_cnt'] = not_matching_records_len
+            Variable.set('usdtoinr',value=src_output)
             logging.info('converting_into_dataframe processing completed')
             logging.info('The no of agents matching with prior ind: {0}'.format(row_matching_ind))
 
         else:
+            logging.info('testing came fail')
             logging.error('Data Extraction or converting into list failed from webpage')
             raise Exception('Data Extraction or converting into list failed from webpage')
     except BaseException as e:
@@ -216,9 +223,8 @@ def load_usdtoinr_data(**kwargs):
 
 def diff_send_email(**kwargs):
     try:
-        
-        not_matching_records = bs(Variable.get('usdtoinr_non_match_records'),'html.parser')
-        not_matching_records_len = int(Variable.get('usdtoinr_non_match_record_cnt'))
+        src_output = eval(Variable.get('usdtoinr'))
+        not_matching_records_len = int(src_output['non_match_record_cnt'])
         today = str(datetime.now().replace(microsecond=0)).replace(' ','_').replace(':','_')
       
         if not_matching_records_len>=1:
@@ -248,8 +254,8 @@ Sudhakar
             #    not_matching_records.to_csv(f,index=False,sep='\t',float_format='%.2f')
             
             try:
-                data_set = Variable.get('usdtoinr_non_match_records')
-                today_data_set = Variable.get('usdtoinr_today_agent_data')
+                data_set = src_output['non_match_records'] #Variable.get('usdtoinr_non_match_records')
+                today_data_set = src_output['today_agent_data'] #Variable.get('usdtoinr_today_agent_data')
                 
                 body = {content1 : data_set,
                         content2 : today_data_set,
@@ -263,20 +269,23 @@ Sudhakar
                 raise Exception('Failed process of sending email: {0}'.format(e))
         else:
             logging.info('No difference found in agent rates')
+        next_exec_date = {'next_execution_date': str(kwargs['next_execution_date'])}
+        Variable.set('usdtoinr',value=next_exec_date)
+        
     except BaseException  as e:
         logging.error('send_email method logic issue: {0}'.format(e))
         raise Exception('send_email method logic issue: {0}'.format(e))
 
 
-
 default_args = {
     'owner': Variable.get('airflow_owner'),
-    'start_date': datetime.now(),
+    #'start_date': datetime.now(),
+    'start_date': datetime(2020,7,25),
     'email': eval(Variable.get('airflow_failure_notification_list')),
     'email_on_failure': True,
     'email_on_retry': False,
     'retries': 1,
-    'retry_delay': timedelta(minutes=15)
+    'retry_delay': timedelta(minutes=5)
 }
 
 dag = DAG('usdtoinr_dag', 
