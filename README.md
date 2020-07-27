@@ -145,6 +145,7 @@ The ETL process is divided into tasks in a dag in Airflow. There are 4 PythonOpe
 - If it fails second time, it will send email notification (need to setup **SMTP** section in airflow.cfg file) and fail the task.
 - Below is a sample email notification when the task fails.
 
+  <img src='https://github.com/sudhakar12161/Project-USD-to-INR-rate-conversion/blob/master/pictures/airflow_failure_notification.png' alt = 'Airflow Failure Notification email' />
 
 ## Data Result
 
