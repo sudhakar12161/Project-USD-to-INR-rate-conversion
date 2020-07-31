@@ -106,7 +106,7 @@ Follow the below steps to setup **USD-to-INR rate change notification** applicat
 
 - Copy all files from [dag](https://github.com/sudhakar12161/Project-USD-to-INR-rate-conversion/tree/master/dag) folder into your dag folder located in Airflow Home directory.
 
-- Restart Airflow services if you don't see new dags in Airflow web UI.
+- Restart Airflow services if you don't see new dag in Airflow web UI.
 
 - After above steps you should see the **usdtoinr_dag** in your dag list.
 <img src='https://github.com/sudhakar12161/Project-USD-to-INR-rate-conversion/blob/master/pictures/airflow_main_screen.png' alt='Airflow main web UI' />
@@ -141,18 +141,18 @@ The ETL process is divided into tasks in a dag in Airflow. There are 4 PythonOpe
     - Email task triggeres and sends email notification whenever there is a change in the rate.
 
 #### ETL Recovery and Notification:
-- As we defined in the **DAG** default arguments in the code, the process will re-run for one time if the process failed for unknown reason. 
-- If it fails second time, it will send email notification (need to setup **SMTP** section in airflow.cfg file) and fail the task.
+- As defined in the **DAG** default arguments in the code, the process will re-run for one time when the process fails for unknown reason. 
+- If it fails for the second time, it will send email notification (need to setup **SMTP** section in airflow.cfg file) and fail the task.
 - Below is a sample email notification when the task fails.
 
  <img src='https://github.com/sudhakar12161/Project-USD-to-INR-rate-conversion/blob/master/pictures/airflow_failure_notification.png' alt = 'Airflow Failure Notification email' />
 
 ## Data Result
-- The target database is **PostgreSQL** and part of this project we have only one table which will have the **USD to INR** conversion rate. see the below screenshot for sample data.
+- The target database is **PostgreSQL** with one table which will have the **USD to INR** conversion rate. See below for a sample data.
 
    <img src='https://github.com/sudhakar12161/Project-USD-to-INR-rate-conversion/blob/master/pictures/airflow_sample_table_data.png' alt = 'PostgreSQL sample data' />
 - The table will have the history for analysis purpose.
-- As i mentioned in ETL Process, when the rate information change, airflow task will trigger the email with the data. See the below sample email notification screenshot.
+- When the rate information changes, airflow task will trigger an email with the data. See below for a sample email notification.
 
    <img src='https://github.com/sudhakar12161/Project-USD-to-INR-rate-conversion/blob/master/pictures/airflow_email_result.png' alt = 'USDtoINR email result' />
 ## Conclusion
