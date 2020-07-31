@@ -7,7 +7,6 @@
 - [Code Setup](#code-setup)
 - [ETL Process](#etl-process)
 - [Data Result](#data-result)
-- [Conclusion](#conclusion)
 
 ![](https://img.shields.io/badge/python-3.5%20%7C%203.6%20%7C%203.7-blue) ![](https://img.shields.io/badge/Airflow-1.10.10-brightgreen) ![](https://img.shields.io/badge/Postgres-10%20%7C%2011%20%7C%2012-orange) ![](https://img.shields.io/badge/license-BSD-green)
 ## Introduction
@@ -155,5 +154,5 @@ The ETL process is divided into tasks in a dag in Airflow. There are 4 PythonOpe
 - When the rate information changes, airflow task will trigger an email with the data. See below for a sample email notification.
 
    <img src='https://github.com/sudhakar12161/Project-USD-to-INR-rate-conversion/blob/master/pictures/airflow_email_result.png' alt = 'USDtoINR email result' />
-## Conclusion
+
 
