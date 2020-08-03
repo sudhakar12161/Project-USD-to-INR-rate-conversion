@@ -1,8 +1,12 @@
 from bs4 import BeautifulSoup as bs
 import requests
 from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import pandas as pd
 from datetime import datetime, timedelta
+import time
 import logging
 from os import path
 import os
@@ -32,8 +36,9 @@ def read_webpage(**kwargs):
         options.add_argument("--ignore-certificate-errors")
         options.add_argument("--incognito")
         options.add_argument("--headless")
-        options.add_argument("--disable-popup-blocking");
-        options.add_argument("test-type");
+        options.add_argument("--disable-popup-blocking")
+        options.add_argument("test-type")
+        options.add_argument("--disable-notifications")
         logging.info('Added web driver options to Chrome driver')
         #creating driver obj with options
         driver = webdriver.Chrome(path,options=options)
@@ -41,9 +46,23 @@ def read_webpage(**kwargs):
         #making request to the webpage
         driver.get(Variable.get('airflow_web_addr'))
         logging.info('Request sent to web page {path}'.format(path=Variable.get('airflow_web_addr')))
+        #lopping the webpage until it loads the required elements
+        #if the page loaded SEND NOW link text in the page then it returns the length of 8 and that means it loaded all the required elements
+        page_load_len=0
+        try:
+            while page_load_len == 0 or page_load_len is None:
+                page_load_ind = WebDriverWait(driver,10).until(EC.presence_of_element_located((By.LINK_TEXT, "SEND NOW")))
+                page_load_len = len(page_load_ind.text)
+                logging.info('page_load_length: {}'.format(page_load_len))
+        except BaseException as e:
+            logging.error('Webpage reading failed with error: {}'.format(e))
+            raise e
+        
         #assigning the HTML code to a variable
         src = driver.page_source
         logging.info('Reading webpage completed.')
+        #closing the wep page
+        driver.quit()
         #creating a dictionary
         usdtoinr = {'src': src}
         #saving it in usdtoinr variable
@@ -329,7 +348,7 @@ default_args = {
 #defining a DAG
 dag = DAG('usdtoinr_dag', 
     description='Scheduling USD to INR web scraping and sending email job through python operators',
-    schedule_interval='10 */2 * * *',
+    schedule_interval='10 */6 * * *',
     catchup=False,
     default_args=default_args
 )
