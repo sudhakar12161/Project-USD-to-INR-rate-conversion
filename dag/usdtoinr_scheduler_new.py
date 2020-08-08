@@ -190,30 +190,30 @@ def load_usdtoinr_data(**kwargs):
             postgres_conn = postgres.get_conn()
             #reading old data from table
             old_record = pd.read_sql('''SELECT * FROM compare_rate_usd_to_inr 
-                                        WHERE "Date_Id" = (SELECT max("Date_Id") FROM compare_rate_usd_to_inr)''',
-                                     postgres_conn, parse_dates={'Date_Id'})
+                                        WHERE date_id = (SELECT max(date_id) FROM compare_rate_usd_to_inr)''',
+                                     postgres_conn, parse_dates={'date_id'})
             #Removing date_id column
             old_record = old_record.iloc[:,1:]
             #Sorting the old data by agent name to compare
-            old_record = old_record.sort_values(by='Agent_Name').reset_index(drop=True)
+            old_record = old_record.sort_values(by='agent_name').reset_index(drop=True)
             
             #converting list to dataframe and adding columns
-            raw_agent_data = pd.DataFrame(output,columns=['Agent_Name','New_User','New_User_Rate','Regular_User','Regular_Rate','Transfer_Fee','Transfer_Fee_Rate'])
+            raw_agent_data = pd.DataFrame(output,columns=['agent_name','new_user','new_user_rate','regular_user','regular_rate','transfer_fee','transfer_fee_rate'])
             logging.info('Converted into DataFrame and added columns')
             #droping the header names from rows
-            raw_agent_data=raw_agent_data.drop(['New_User','Regular_User','Transfer_Fee'],axis=1).sort_values(by='Agent_Name').reset_index(drop=True)
+            raw_agent_data=raw_agent_data.drop(['new_user','regular_user','transfer_fee'],axis=1).sort_values(by='agent_name').reset_index(drop=True)
             logging.info('Dropped desc fileds')
             #dropping XE Money Transfer agent from the data frame as it is not consistent
-            raw_agent_data = raw_agent_data.query('Agent_Name != "XE Money Transfer"').reset_index(drop=True)
+            raw_agent_data = raw_agent_data.query('agent_name != "XE Money Transfer"').reset_index(drop=True)
             #the below line is for testing purpose
             #raw_agent_data.loc[raw_agent_data['Agent_Name']=='Xoom','New_User_Rate']=74.40
             #imp_agent_names are the one i am interested in
             imp_agent_names =['RIA Money Transfer','Remitly','Western Union','Xoom']
             #creating not matching recrods by comparaing old data and current data
             not_matching_records = pd.DataFrame(columns=raw_agent_data.columns)
-            not_matching_records['New_User_Rate_Difference'] = None
-            not_matching_records['New_User_Rate_Difference_desc'] = None
-            not_matching_records['Regular_Rate_Difference'] = None
+            not_matching_records['new_user_rate_difference'] = None
+            not_matching_records['new_user_rate_difference_desc'] = None
+            not_matching_records['regular_date_difference'] = None
             #comparing the no of agents with prior data
             row_matching_ind = True if len(raw_agent_data) == len(old_record) else False
             #logging.info(raw_agent_data)
@@ -226,14 +226,14 @@ def load_usdtoinr_data(**kwargs):
                 #comparing the dataframes
                 if  row_matching_ind and not (old_record.iloc[i].equals(raw_agent_data.iloc[i])):
                     not_matching_records = not_matching_records.append(raw_agent_data.iloc[i],ignore_index=True)
-                    not_matching_records.loc[cnt,'New_User_Rate_Difference']=raw_agent_data.loc[i,'New_User_Rate']-old_record.loc[i,'New_User_Rate']
-                    not_matching_records.loc[cnt,'New_User_Rate_Difference_desc']='Increased' if not_matching_records.loc[cnt,'New_User_Rate_Difference']>0 else 'Decreased'
-                    not_matching_records.loc[cnt,'Regular_Rate_Difference']=raw_agent_data.loc[i,'Regular_Rate']-old_record.loc[i,'Regular_Rate']
+                    not_matching_records.loc[cnt,'new_user_rate_difference']=raw_agent_data.loc[i,'new_user_rate']-old_record.loc[i,'new_user_rate']
+                    not_matching_records.loc[cnt,'new_user_rate_difference_desc']='Increased' if not_matching_records.loc[cnt,'new_user_rate_difference']>0 else 'Decreased'
+                    not_matching_records.loc[cnt,'regular_rate_difference']=raw_agent_data.loc[i,'regular_rate']-old_record.loc[i,'regular_rate']
                     cnt = cnt+1
             logging.info('Proccessed not matching records and added the difference')
             #appending/inserting the data to table
             #adding Data_id column
-            raw_agent_data.insert(0,'Date_Id', datetime.now().replace(microsecond=0))
+            raw_agent_data.insert(0,'date_id', datetime.now().replace(microsecond=0))
             #inserting data into database table if the conditions met
             if not (row_matching_ind) or len(not_matching_records)>0:
                 raw_agent_data.to_sql('compare_rate_usd_to_inr',postgres_engine,index=False,if_exists='append')
@@ -241,16 +241,16 @@ def load_usdtoinr_data(**kwargs):
             else:
                 logging.info('0 records inserted into database')
             #keeping only prefeered agents
-            not_matching_records = not_matching_records.query('Agent_Name in @imp_agent_names')
+            not_matching_records = not_matching_records.query('agent_name in @imp_agent_names')
             logging.info('Filtered non matching records based on imp_agent_names')
             logging.info(not_matching_records)
             not_matching_records_len = not_matching_records.shape[0]
             logging.info('not_matching_records_len: {}'.format(not_matching_records_len))
             
             #latest values
-            today_agent_data = raw_agent_data.loc[:,['Agent_Name','New_User_Rate']]
-            today_agent_data = today_agent_data.query('Agent_Name in @imp_agent_names')
-            today_agent_data = today_agent_data.sort_values(by='New_User_Rate', ascending=False).reset_index(drop=True)
+            today_agent_data = raw_agent_data.loc[:,['agent_name','new_user_rate']]
+            today_agent_data = today_agent_data.query('agent_name in @imp_agent_names')
+            today_agent_data = today_agent_data.sort_values(by='new_user_rate', ascending=False).reset_index(drop=True)
             #logging.info(today_agent_data)
             #assigning the output data in a dictionary to read in the next task
             src_output['today_agent_data'] = today_agent_data.to_html(index=False)
@@ -283,9 +283,11 @@ def diff_send_email(**kwargs):
         #checking if there are any changes in rates
         if not_matching_records_len>=1:
             logging.info('Preparing to send email notification')
-            EMAIL_ADDRESS = os.getenv('EMAIL_ADDRESS')
+            #EMAIL_ADDRESS = os.getenv('EMAIL_ADDRESS')
+            EMAIL_ADDRESS = Variable.get('airflow_send_email_address')
             #print(EMAIL_ADDRESS)
-            EMAIL_PASSWORD = os.environ.get('EMAIL_PASS')
+            #EMAIL_PASSWORD = os.environ.get('EMAIL_PASS')
+            EMAIL_PASSWORD = Variable.get('airflow_send_email_password')
             #print(EMAIL_PASSWORD)
             #Creating email inputs
             subject = "Today's Best US Dollars to Indian Rupees (USD to INR) Exchange Rate: "+today
