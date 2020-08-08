@@ -150,9 +150,9 @@ The ETL process is divided into tasks in a dag in Airflow. There are 4 PythonOpe
 - The target database is **PostgreSQL** with one table which will have the **USD to INR** conversion rate. See below for a sample data.
 
    <img src='https://github.com/sudhakar12161/Project-USD-to-INR-rate-conversion/blob/master/pictures/airflow_sample_table_data.png' alt = 'PostgreSQL sample data' />
-- The table will have the history for analysis purpose.
 - When the rate information changes, airflow task will trigger an email with the data. See below for a sample email notification.
 
    <img src='https://github.com/sudhakar12161/Project-USD-to-INR-rate-conversion/blob/master/pictures/airflow_email_result.png' alt = 'USDtoINR email result' />
 
-
+- The table will have the history for analysis purpose as shown below.
+   <img src='https://github.com/sudhakar12161/Project-USD-to-INR-rate-conversion/blob/master/pictures/airflow_data_analysis.png' alt = 'USDtoINR data analysis' />
