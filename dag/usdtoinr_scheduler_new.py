@@ -113,10 +113,10 @@ def extract_usdtoinr_data(**kwargs):
             agent_lbl_info =  agent_info.find_all('div', class_='small-gray-text rate lbl')
             #print(agent_lbl_info,end='\n\n')
             #extracting the rate amount
-            agent_rate_info =  agent_info.find_all('div', class_="text-2 rate amt")
+            agent_rate_info =  agent_info.find_all('div', class_="text-2 rate amt txt-green txt-20")
             #print(agent_rate_info,end='\n\n')
             #extracting trasfer charges
-            agent_charge_info =  agent_info.find_all('div', class_="rate amt")
+            agent_charge_info =  agent_info.find_all('div', class_="rate amt txt-16")
             #print(agent_charge_info,end='\n\n')
             #rate into and charges info appending to list and passing along with rate types to dictionary
             agent_rate_list = list(agent_rate_info)
@@ -208,7 +208,7 @@ def load_usdtoinr_data(**kwargs):
             #the below line is for testing purpose
             #raw_agent_data.loc[raw_agent_data['Agent_Name']=='Xoom','New_User_Rate']=74.40
             #imp_agent_names are the one i am interested in
-            imp_agent_names =['RIA Money Transfer','Remitly','Western Union','Xoom']
+            imp_agent_names =['RIA Money Transfer','Remitly','Western Union','Xoom','Skrill Money Transfer']
             #creating not matching recrods by comparaing old data and current data
             not_matching_records = pd.DataFrame(columns=raw_agent_data.columns)
             not_matching_records['new_user_rate_difference'] = None
@@ -248,9 +248,9 @@ def load_usdtoinr_data(**kwargs):
             logging.info('not_matching_records_len: {}'.format(not_matching_records_len))
             
             #latest values
-            today_agent_data = raw_agent_data.loc[:,['agent_name','new_user_rate']]
+            today_agent_data = raw_agent_data.loc[:,['agent_name','regular_rate']]
             today_agent_data = today_agent_data.query('agent_name in @imp_agent_names')
-            today_agent_data = today_agent_data.sort_values(by='new_user_rate', ascending=False).reset_index(drop=True)
+            today_agent_data = today_agent_data.sort_values(by='regular_rate', ascending=False).reset_index(drop=True)
             #logging.info(today_agent_data)
             #assigning the output data in a dictionary to read in the next task
             src_output['today_agent_data'] = today_agent_data.to_html(index=False)
@@ -293,13 +293,12 @@ def diff_send_email(**kwargs):
             subject = "Today's Best US Dollars to Indian Rupees (USD to INR) Exchange Rate: "+today
             to = EMAIL_ADDRESS
             bcc = eval(Variable.get('airflow_usd_to_inr_bcc_list'))
-            content1  = """Below are the updated rates:
+            content1  = """Change in Today's rate:
             """
             content2 = """
-Today's USD to INR rates:
+Regular Rates from High to Low:
             """
             footer = """
-            
             
 Thanks,
 Sudhakar
